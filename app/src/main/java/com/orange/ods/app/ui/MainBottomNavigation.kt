@@ -35,7 +35,7 @@ fun MainBottomNavigation(items: Array<BottomNavigationSections>, currentRoute: S
             OdsBottomNavigationItem(
                 icon = OdsBottomNavigationItemIcon(painter = painterResource(id = item.iconRes), contentDescription = ""),
                 label = stringResource(id = item.titleRes),
-                selected = currentRoute == item.route,
+                selected = currentRoute == item.route || currentRoute in item.additionalRoutes,
                 onClick = {
                     navigateToRoute(item.route)
                 }
@@ -64,10 +64,11 @@ fun NavGraphBuilder.addBottomNavigationGraph(navController: NavController) {
 enum class BottomNavigationSections(
     @StringRes val titleRes: Int,
     @DrawableRes val iconRes: Int,
-    val route: String
+    val route: String,
+    val additionalRoutes: List<String> = emptyList()
 ) {
     Guidelines(R.string.navigation_item_guidelines, R.drawable.ic_guideline_dna, "main/guidelines"),
     Components(R.string.navigation_item_components, R.drawable.ic_component_atom, "main/components"),
     Modules(R.string.navigation_item_modules, R.drawable.ic_module_molecule, "main/modules"),
-    About(R.string.navigation_item_about, R.drawable.ic_info, OdsAboutDestinations.AboutRoute);
+    About(R.string.navigation_item_about, R.drawable.ic_info, OdsAboutDestinations.AboutRoute, listOf(OdsAboutDestinations.HomeRoute));
 }

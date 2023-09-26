@@ -18,7 +18,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.orange.ods.module.about.navigation.OdsAboutDestinations
 
 /**
  * Destinations used in the [MainScreen].
@@ -62,13 +61,13 @@ class MainState(
     // ----------------------------------------------------------
 
     val bottomBarItems = BottomNavigationSections.values()
-    private val bottomBarRoutes = bottomBarItems.map { it.route }
+    private val bottomBarRoutes: List<String> = bottomBarItems.map { it.route } + bottomBarItems.flatMap { it.additionalRoutes }
 
     // Reading this attribute will cause recompositions when the bottom bar needs shown, or not.
     // Not all routes need to show the bottom bar.
     val shouldShowBottomBar: Boolean
         @Composable get() = navController
-            .currentBackStackEntryAsState().value?.destination?.route in (bottomBarRoutes + OdsAboutDestinations.HomeRoute)
+            .currentBackStackEntryAsState().value?.destination?.route in bottomBarRoutes
 
     // ----------------------------------------------------------
     // Navigation state source of truth
