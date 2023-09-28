@@ -15,9 +15,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -48,77 +51,84 @@ internal fun OdsAboutHomeScreen(configuration: OdsAboutModuleConfiguration?, onA
     val context = LocalContext.current
 
     if (configuration != null) {
-        Column {
-            Image(
-                painter = painterResource(id = configuration.appIllustration),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(ImageHeight.dp),
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-            )
+        val menuItemById = configuration.menuItemById
 
-            Column(Modifier.padding(horizontal = dimensionResource(id = com.orange.ods.R.dimen.screen_horizontal_margin))) {
-                OdsTextH4(
-                    text = configuration.appName,
-                    modifier = Modifier.padding(top = dimensionResource(id = com.orange.ods.R.dimen.spacing_m))
+        LazyColumn(
+            modifier = Modifier
+                .padding(bottom = dimensionResource(id = com.orange.ods.R.dimen.screen_vertical_margin))
+        ) {
+            item {
+                Image(
+                    painter = painterResource(id = configuration.appIllustration),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ImageHeight.dp),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
                 )
-                Row(modifier = Modifier.padding(top = dimensionResource(id = com.orange.ods.R.dimen.spacing_s))) {
-                    configuration.shareData?.let { shareData ->
-                        OdsTextButton(
-                            modifier = Modifier.padding(end = dimensionResource(id = com.orange.ods.R.dimen.spacing_s)),
-                            text = stringResource(id = R.string.ods_about_app_share),
-                            icon = OdsButtonIcon(painterResource(id = R.drawable.ic_share)),
-                            onClick = {
-                                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TITLE, shareData.title)
-                                    putExtra(Intent.EXTRA_TEXT, shareData.text)
-                                }
-                                context.startActivity(Intent.createChooser(sendIntent, null))
-                            },
-                            style = OdsTextButtonStyle.Primary
 
-                        )
-                    }
-                    configuration.onFeedbackButtonClick?.let { feedbackAction ->
-                        OdsTextButton(
-                            text = stringResource(id = R.string.ods_about_app_feedback),
-                            icon = OdsButtonIcon(painterResource(id = R.drawable.ic_comment)),
-                            onClick = feedbackAction,
-                            style = OdsTextButtonStyle.Primary
-                        )
-                    }
-                }
-                configuration.appVersion?.let { appVersion ->
-                    OdsTextBody2(
-                        text = appVersion,
+                Column(modifier = Modifier.padding(horizontal = dimensionResource(id = com.orange.ods.R.dimen.spacing_m))) {
+
+
+                    OdsTextH4(
+                        text = configuration.appName,
                         modifier = Modifier.padding(top = dimensionResource(id = com.orange.ods.R.dimen.spacing_m))
+                    )
+                    Row(modifier = Modifier.padding(top = dimensionResource(id = com.orange.ods.R.dimen.spacing_s))) {
+                        configuration.shareData?.let { shareData ->
+                            OdsTextButton(
+                                modifier = Modifier.padding(end = dimensionResource(id = com.orange.ods.R.dimen.spacing_s)),
+                                text = stringResource(id = R.string.ods_about_app_share),
+                                icon = OdsButtonIcon(painterResource(id = R.drawable.ic_share)),
+                                onClick = {
+                                    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_TITLE, shareData.title)
+                                        putExtra(Intent.EXTRA_TEXT, shareData.text)
+                                    }
+                                    context.startActivity(Intent.createChooser(sendIntent, null))
+                                },
+                                style = OdsTextButtonStyle.Primary
+                            )
+                        }
+                        configuration.onFeedbackButtonClick?.let { feedbackAction ->
+                            OdsTextButton(
+                                text = stringResource(id = R.string.ods_about_app_feedback),
+                                icon = OdsButtonIcon(painterResource(id = R.drawable.ic_comment)),
+                                onClick = feedbackAction,
+                                style = OdsTextButtonStyle.Primary
+                            )
+                        }
+                    }
+                    configuration.appVersion?.let { appVersion ->
+                        OdsTextBody2(
+                            text = appVersion,
+                            modifier = Modifier.padding(top = dimensionResource(id = com.orange.ods.R.dimen.spacing_m))
+                        )
+                    }
+                    configuration.appDescription?.let { description ->
+                        OdsTextBody1(
+                            text = description,
+                            modifier = Modifier.padding(top = dimensionResource(id = com.orange.ods.R.dimen.spacing_s))
+                        )
+                    }
+                }
 
-                    )
-                }
-                configuration.appDescription?.let { description ->
-                    OdsTextBody1(
-                        text = description,
-                        modifier = Modifier.padding(top = dimensionResource(id = com.orange.ods.R.dimen.spacing_s))
-                    )
-                }
+                Spacer(modifier = Modifier.height(dimensionResource(id = com.orange.ods.R.dimen.spacing_m)))
             }
 
-            Column(modifier = Modifier.padding(top = dimensionResource(id = com.orange.ods.R.dimen.spacing_m))) {
-                configuration.menuItemById.forEach { mapEntry ->
-                    val menuItem = mapEntry.value
-                    OdsListItem(
-                        modifier = Modifier
-                            .iconType(OdsListItemIconType.Icon)
-                            .clickable {
-                                onAboutMenuItemClick(mapEntry.key)
-                            },
-                        icon = { OdsListItemIcon(painter = painterResource(id = menuItem.iconRes)) },
-                        text = stringResource(id = menuItem.titleRes),
-                        secondaryText = menuItem.subtitleRes?.let { stringResource(id = it) }
-                    )
-                }
+            items(menuItemById.values.toList()) { menuItem ->
+                OdsListItem(
+                    modifier = Modifier
+                        .iconType(OdsListItemIconType.Icon)
+                        .clickable {
+                            onAboutMenuItemClick(menuItemById.filter { it.value == menuItem }.keys.first())
+                        },
+
+                    icon = { OdsListItemIcon(painter = menuItem.icon) },
+                    text = menuItem.title,
+                    secondaryText = menuItem.subtitle
+                )
             }
         }
     }
@@ -136,6 +146,6 @@ fun PreviewOdsAboutMainScreen() {
     )
 
     Preview {
-        OdsAboutMainScreen(configuration = configuration, onAboutMenuItemClick = {})
+        OdsAboutHomeScreen(configuration = configuration, onAboutMenuItemClick = {})
     }
 }

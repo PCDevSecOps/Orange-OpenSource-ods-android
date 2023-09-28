@@ -11,9 +11,9 @@
 package com.orange.ods.module.about.configuration
 
 import androidx.annotation.DrawableRes
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.orange.ods.compose.component.appbar.top.OdsTopAppBarActionButton
-import com.orange.ods.compose.component.appbar.top.OdsTopAppBarOverflowMenuActionItem
 import com.orange.ods.module.about.R
 
 
@@ -61,16 +61,6 @@ data class OdsAboutModuleConfiguration(
     val onFeedbackButtonClick: (() -> Unit)? = null,
 
     /**
-     * The optional actions displayed at the end of the About module TopAppBar.
-     */
-    val topAppBarActions: List<OdsTopAppBarActionButton> = emptyList(),
-
-    /**
-     * The optional actions displayed in the overflow menu of the About module TopAppBar. If the list is empty, the overflow menu icon will not be displayed.
-     */
-    val topAppBarOverflowMenuActions: List<OdsTopAppBarOverflowMenuActionItem> = emptyList(),
-
-    /**
      * The custom menu items to be displayed on the about main screen.
      * Note that mandatory items will be added to the provided list:
      *  - Privacy policy (position index 100)
@@ -81,9 +71,14 @@ data class OdsAboutModuleConfiguration(
 ) {
 
     internal val menuItemById: Map<Int, OdsAboutMenuItem>
-        get() = (customMenuItems + mandatoryMenuItems).sortedBy { it.positionIndex }
-            .mapIndexed { index, odsAboutMenuItem -> index to odsAboutMenuItem }.toMap()
-
+        @Composable
+        get() {
+            val mandatoryMenuItems = mandatoryMenuItems()
+            return remember {
+                (customMenuItems + mandatoryMenuItems).sortedBy { it.positionIndex }
+                    .mapIndexed { index, odsAboutMenuItem -> index to odsAboutMenuItem }.toMap()
+            }
+        }
 }
 
 /**
