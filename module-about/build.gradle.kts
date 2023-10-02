@@ -13,6 +13,8 @@ import com.orange.ods.gradle.Versions
 
 plugins {
     id("library")
+    id("dagger.hilt.android.plugin")
+    id("kotlin-kapt")
 }
 
 android {
@@ -32,5 +34,6 @@ dependencies {
     implementation(Dependencies.browser)
     implementation(Dependencies.composeMaterial)
     implementation(Dependencies.hiltAndroid)
+    kapt(Dependencies.hiltCompiler)
     implementation(Dependencies.navigationCompose)
 }
