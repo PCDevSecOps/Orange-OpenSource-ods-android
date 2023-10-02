@@ -11,7 +11,7 @@
 package com.orange.ods.app.ui.components
 
 import androidx.compose.runtime.remember
-import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -19,8 +19,9 @@ import androidx.navigation.navArgument
 import com.orange.ods.app.ui.LocalMainTopAppBarManager
 import com.orange.ods.app.ui.MainDestinations
 import com.orange.ods.app.ui.MainTopAppBarState
+import com.orange.ods.app.ui.navigateToElement
 
-fun NavGraphBuilder.addComponentsGraph(navigateToElement: (String, Long?, NavBackStackEntry) -> Unit, upPress: () -> Unit) {
+fun NavGraphBuilder.addComponentsGraph(navController: NavController, upPress: () -> Unit) {
 
     composable(
         "${MainDestinations.ComponentDetailRoute}/{${MainDestinations.ComponentIdKey}}",
@@ -36,8 +37,8 @@ fun NavGraphBuilder.addComponentsGraph(navigateToElement: (String, Long?, NavBac
 
             ComponentDetailScreen(
                 component = component,
-                onVariantClick = { variantId -> navigateToElement(MainDestinations.ComponentVariantDemoRoute, variantId, from) },
-                onDemoClick = { navigateToElement(MainDestinations.ComponentDemoRoute, routeComponentId, from) }
+                onVariantClick = { variantId -> navController.navigateToElement(MainDestinations.ComponentVariantDemoRoute, variantId, from) },
+                onDemoClick = { navController.navigateToElement(MainDestinations.ComponentDemoRoute, routeComponentId, from) }
             )
         }
     }

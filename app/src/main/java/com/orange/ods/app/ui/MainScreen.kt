@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,16 +41,18 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.orange.ods.app.R
 import com.orange.ods.app.domain.recipes.LocalCategories
 import com.orange.ods.app.domain.recipes.LocalRecipes
-import com.orange.ods.app.ui.about.addAboutGraph
+import com.orange.ods.app.ui.about.aboutConfiguration
 import com.orange.ods.app.ui.components.addComponentsGraph
 import com.orange.ods.app.ui.components.tabs.FixedTabRow
 import com.orange.ods.app.ui.components.tabs.ScrollableTabRow
 import com.orange.ods.app.ui.guidelines.addGuidelinesGraph
+import com.orange.ods.app.ui.modules.addModulesGraph
 import com.orange.ods.app.ui.search.SearchScreen
 import com.orange.ods.app.ui.utilities.extension.isDarkModeEnabled
 import com.orange.ods.app.ui.utilities.extension.isOrange
 import com.orange.ods.compose.theme.OdsTheme
 import com.orange.ods.extension.orElse
+import com.orange.ods.module.about.configuration.LocalOdsAboutModuleConfiguration
 import com.orange.ods.theme.OdsThemeConfigurationContract
 import com.orange.ods.xml.theme.OdsXml
 import com.orange.ods.xml.utilities.extension.xml
@@ -90,7 +92,8 @@ fun MainScreen(themeConfigurations: Set<OdsThemeConfigurationContract>, mainView
         LocalOdsGuideline provides mainState.themeState.currentThemeConfiguration.guideline,
         LocalRecipes provides mainViewModel.recipes,
         LocalCategories provides mainViewModel.categories,
-        LocalUiFramework provides mainState.uiFramework
+        LocalUiFramework provides mainState.uiFramework,
+        LocalOdsAboutModuleConfiguration provides aboutConfiguration()
     ) {
         OdsTheme(
             themeConfiguration = mainState.themeState.currentThemeConfiguration,
@@ -117,7 +120,6 @@ fun MainScreen(themeConfigurations: Set<OdsThemeConfigurationContract>, mainView
 
             Scaffold(
                 modifier = modifier,
-                backgroundColor = OdsTheme.colors.background,
                 topBar = {
                     Surface(elevation = if (isSystemInDarkTheme()) 0.dp else AppBarDefaults.TopAppBarElevation) {
                         Column {
@@ -155,7 +157,7 @@ fun MainScreen(themeConfigurations: Set<OdsThemeConfigurationContract>, mainView
                     navController = mainState.navController, startDestination = MainDestinations.HomeRoute, modifier = Modifier.padding(innerPadding)
                 ) {
                     mainNavGraph(
-                        navigateToElement = mainState::navigateToElement,
+                        navController = mainState.navController,
                         upPress = mainState::upPress,
                         searchedText = mainState.topAppBarState.searchedText
                     )
@@ -211,7 +213,7 @@ private fun MainTabs(mainTabsState: MainTabsState) {
 }
 
 private fun NavGraphBuilder.mainNavGraph(
-    navigateToElement: (String, Long?, NavBackStackEntry) -> Unit,
+    navController: NavController,
     upPress: () -> Unit,
     searchedText: MutableState<TextFieldValue>
 ) {
@@ -219,12 +221,12 @@ private fun NavGraphBuilder.mainNavGraph(
         route = MainDestinations.HomeRoute,
         startDestination = BottomNavigationSections.Guidelines.route
     ) {
-        addBottomNavigationGraph(navigateToElement)
+        addBottomNavigationGraph(navController)
     }
 
     addGuidelinesGraph()
-    addComponentsGraph(navigateToElement, upPress)
-    addAboutGraph()
+    addComponentsGraph(navController, upPress)
+    addModulesGraph(navController)
 
     composable(
         route = MainDestinations.SearchRoute
@@ -232,7 +234,7 @@ private fun NavGraphBuilder.mainNavGraph(
         LocalMainTopAppBarManager.current.updateTopAppBarTitle(R.string.navigation_item_search)
         SearchScreen(
             searchedText,
-            onResultItemClick = { route, id -> navigateToElement(route, id, from) }
+            onResultItemClick = { route, id -> navController.navigateToElement(route, id, from) }
         )
     }
 }

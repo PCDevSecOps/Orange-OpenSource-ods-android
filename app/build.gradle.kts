@@ -35,7 +35,7 @@ android {
         minSdk = Versions.minSdk
         targetSdk = Versions.targetSdk
         val versionCodeProperty = project.findTypedProperty<String>("versionCode")
-        versionCode = versionCodeProperty?.toInt() ?: 6
+        versionCode = versionCodeProperty?.toInt() ?: 7
         versionName = version.toString()
         val versionNameSuffixProperty = project.findTypedProperty<String>("versionNameSuffix")
         versionNameSuffix = versionNameSuffixProperty
@@ -127,12 +127,11 @@ dependencies {
     implementation(project(":lib"))
     implementation(project(":lib-xml"))
     implementation(project(":theme-innovation-cup"))
+    implementation(project(":module-about"))
 
-    implementation(Dependencies.accompanistFlowLayout)
     implementation(Dependencies.accompanistSystemUiController)
     implementation(Dependencies.activityCompose)
     implementation(Dependencies.appCompat)
-    implementation(Dependencies.browser)
     implementation(Dependencies.coil)
     implementation(Dependencies.coilCompose)
     implementation(platform(Dependencies.composeBom))
