@@ -16,10 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.orange.ods.module.about.R
 
-
-val LocalOdsAboutModuleConfiguration =
-    staticCompositionLocalOf<OdsAboutModuleConfiguration> { error("CompositionLocal LocalOdsAboutModuleConfiguration not present") }
-
 /**
  * About module configuration.
  */

@@ -10,17 +10,16 @@
 
 package com.orange.ods.app.ui.modules
 
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.orange.ods.app.ui.LocalMainTopAppBarManager
 import com.orange.ods.app.ui.MainTopAppBarState
 import com.orange.ods.app.ui.modules.ModuleDemoDestinations.AboutModuleCustomizationRoute
 import com.orange.ods.app.ui.modules.about.AboutCustomizationScreen
-import com.orange.ods.module.about.OdsAboutViewModel
-import com.orange.ods.module.about.navigation.aboutDemoGraph
-import com.orange.ods.module.about.navigation.navigateToOdsAboutDemo
+import com.orange.ods.app.ui.modules.about.AboutCustomizationViewModel
 
 /**
  * Modules demo destinations.
@@ -29,18 +28,15 @@ object ModuleDemoDestinations {
     const val AboutModuleCustomizationRoute = "module/about/customization"
 }
 
-fun NavGraphBuilder.addModulesGraph(navController: NavController) {
-
+fun NavGraphBuilder.addModulesGraph(navigateToAboutModule: () -> Unit) {
     composable(
         route = AboutModuleCustomizationRoute
-    ) { navBackStackEntry ->
+    ) {
         LocalMainTopAppBarManager.current.updateTopAppBar(MainTopAppBarState.DefaultConfiguration)
         LocalMainTopAppBarManager.current.updateTopAppBarTitle(Module.About.titleRes)
 
-        val viewModel: OdsAboutViewModel = viewModel(navBackStackEntry)
-        AboutCustomizationScreen(navigateToAboutModule = navController::navigateToOdsAboutDemo, configureAboutModule = viewModel::configureAboutModule)
+        val viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner
+        val viewModel = viewModel<AboutCustomizationViewModel>(viewModelStoreOwner)
+        AboutCustomizationScreen(navigateToAboutModule = navigateToAboutModule, viewModel = viewModel)
     }
-
-    aboutDemoGraph(navController = navController)
-
 }

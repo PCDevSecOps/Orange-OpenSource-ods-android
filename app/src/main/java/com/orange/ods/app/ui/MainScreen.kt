@@ -29,8 +29,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -46,13 +48,15 @@ import com.orange.ods.app.ui.components.addComponentsGraph
 import com.orange.ods.app.ui.components.tabs.FixedTabRow
 import com.orange.ods.app.ui.components.tabs.ScrollableTabRow
 import com.orange.ods.app.ui.guidelines.addGuidelinesGraph
+import com.orange.ods.app.ui.modules.about.AboutCustomizationViewModel
 import com.orange.ods.app.ui.modules.addModulesGraph
 import com.orange.ods.app.ui.search.SearchScreen
 import com.orange.ods.app.ui.utilities.extension.isDarkModeEnabled
 import com.orange.ods.app.ui.utilities.extension.isOrange
 import com.orange.ods.compose.theme.OdsTheme
 import com.orange.ods.extension.orElse
-import com.orange.ods.module.about.configuration.LocalOdsAboutModuleConfiguration
+import com.orange.ods.module.about.navigation.OdsAboutDestinations
+import com.orange.ods.module.about.odsAboutModule
 import com.orange.ods.theme.OdsThemeConfigurationContract
 import com.orange.ods.xml.theme.OdsXml
 import com.orange.ods.xml.utilities.extension.xml
@@ -92,8 +96,7 @@ fun MainScreen(themeConfigurations: Set<OdsThemeConfigurationContract>, mainView
         LocalOdsGuideline provides mainState.themeState.currentThemeConfiguration.guideline,
         LocalRecipes provides mainViewModel.recipes,
         LocalCategories provides mainViewModel.categories,
-        LocalUiFramework provides mainState.uiFramework,
-        LocalOdsAboutModuleConfiguration provides aboutConfiguration()
+        LocalUiFramework provides mainState.uiFramework
     ) {
         OdsTheme(
             themeConfiguration = mainState.themeState.currentThemeConfiguration,
@@ -118,6 +121,11 @@ fun MainScreen(themeConfigurations: Set<OdsThemeConfigurationContract>, mainView
                 modifier = Modifier
             }
 
+            val context = LocalContext.current
+            val aboutModule = odsAboutModule(context = context)
+            val aboutConfiguration = aboutConfiguration()
+            val aboutCustomizationViewModel = viewModel<AboutCustomizationViewModel>(context as ViewModelStoreOwner)
+            val customAboutConfiguration = aboutCustomizationViewModel.aboutModuleConfiguration()
             Scaffold(
                 modifier = modifier,
                 topBar = {
@@ -148,7 +156,12 @@ fun MainScreen(themeConfigurations: Set<OdsThemeConfigurationContract>, mainView
                         MainBottomNavigation(
                             items = mainState.bottomBarItems,
                             currentRoute = mainState.currentRoute!!,
-                            navigateToRoute = mainState::navigateToBottomBarRoute
+                            navigateToRoute = { route ->
+                                if (route == OdsAboutDestinations.HomeRoute) {
+                                    aboutModule.configuration = aboutConfiguration
+                                }
+                                mainState.navigateToBottomBarRoute(route)
+                            }
                         )
                     }
                 }
@@ -159,8 +172,11 @@ fun MainScreen(themeConfigurations: Set<OdsThemeConfigurationContract>, mainView
                     mainNavGraph(
                         navController = mainState.navController,
                         upPress = mainState::upPress,
-                        searchedText = mainState.topAppBarState.searchedText
-                    )
+                        searchedText = mainState.topAppBarState.searchedText,
+                        navigateToAboutModule = {
+                            aboutModule.configuration = customAboutConfiguration
+                            mainState.navController.navigate(OdsAboutDestinations.HomeRoute)
+                        })
                 }
             }
         }
@@ -215,7 +231,8 @@ private fun MainTabs(mainTabsState: MainTabsState) {
 private fun NavGraphBuilder.mainNavGraph(
     navController: NavController,
     upPress: () -> Unit,
-    searchedText: MutableState<TextFieldValue>
+    searchedText: MutableState<TextFieldValue>,
+    navigateToAboutModule: () -> Unit
 ) {
     navigation(
         route = MainDestinations.HomeRoute,
@@ -226,7 +243,7 @@ private fun NavGraphBuilder.mainNavGraph(
 
     addGuidelinesGraph()
     addComponentsGraph(navController, upPress)
-    addModulesGraph(navController)
+    addModulesGraph(navigateToAboutModule)
 
     composable(
         route = MainDestinations.SearchRoute
