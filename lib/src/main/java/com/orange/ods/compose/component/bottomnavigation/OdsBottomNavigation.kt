@@ -42,6 +42,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.orange.ods.R
 import com.orange.ods.compose.component.OdsComposable
+import com.orange.ods.compose.component.content.OdsComponentContent
 import com.orange.ods.compose.component.content.OdsComponentIcon
 import com.orange.ods.compose.component.content.OdsComponentScopeContent
 import com.orange.ods.compose.component.utilities.Preview
@@ -79,7 +80,7 @@ fun OdsBottomNavigation(
         contentColor = OdsTheme.colors.component.bottomNavigation.barContent,
         content = {
             items.take(MaxBottomNavigationItemCount).forEach { item ->
-                with(item) { this@BottomNavigation.Content() }
+                with(item) { this@BottomNavigation.Content(extraParameters = OdsComponentContent.EmptyExtraParameters) }
             }
         }
     )
@@ -119,10 +120,10 @@ object OdsBottomNavigation {
         val enabled: Boolean = true,
         val label: String? = null,
         val alwaysShowLabel: Boolean = true
-    ) : OdsComponentScopeContent<RowScope, Nothing>() {
+    ) : OdsComponentScopeContent<RowScope, OdsComponentContent.EmptyExtraParameters>() {
 
         @Composable
-        override fun RowScope.Content(modifier: Modifier) {
+        override fun RowScope.Content(modifier: Modifier, extraParameters: OdsComponentContent.EmptyExtraParameters) {
             val selectedLineMargin = dimensionResource(id = R.dimen.spacing_s)
             val selectedLineHeight = dimensionResource(id = R.dimen.spacing_xs)
 

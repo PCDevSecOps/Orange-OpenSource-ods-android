@@ -33,6 +33,11 @@ abstract class OdsComponentContent<T> where T : OdsComponentContent.ExtraParamet
     abstract class ExtraParameters
 
     /**
+     * Empty extra parameters.
+     */
+    object EmptyExtraParameters : ExtraParameters()
+
+    /**
      * The extra parameters.
      */
     protected lateinit var extraParameters: T

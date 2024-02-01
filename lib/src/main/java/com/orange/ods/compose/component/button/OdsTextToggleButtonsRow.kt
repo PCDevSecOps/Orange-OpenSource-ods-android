@@ -122,7 +122,7 @@ object OdsTextToggleButtonsRow {
         ) : OdsComponentContent.ExtraParameters()
 
         @Composable
-        override fun RowScope.Content(modifier: Modifier) {
+        override fun RowScope.Content(modifier: Modifier, extraParameters: ExtraParameters) {
             val backgroundAlpha by animateFloatAsState(if (extraParameters.selected) 0.12f else 0f, label = "")
 
             OdsTextButton(
